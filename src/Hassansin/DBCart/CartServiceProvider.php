@@ -3,6 +3,7 @@
 namespace Hassansin\DBCart;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Console\Scheduling\Schedule;
 
 class CartServiceProvider extends ServiceProvider {
 
@@ -20,7 +21,7 @@ class CartServiceProvider extends ServiceProvider {
      */
     public function boot()
     {
-        //...
+        $this->registerScheduler();
     }
 
     /**
@@ -30,8 +31,6 @@ class CartServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-
-        $this->registerScheduler();
         $this->app['cart_instances'] =  [] ;
 
         $this->app->bind('cart', function($app, $params){
@@ -64,12 +63,9 @@ class CartServiceProvider extends ServiceProvider {
      * @codeCoverageIgnore
      */
     protected function registerScheduler(){
-        $schedule = $this->app['Illuminate\Console\Scheduling\Schedule'];
-        $events = $this->app['events'];
-        $schedule_frequency = config('cart.schedule_frequency', 'hourly');
-
-        $events->listen('artisan.start', function (\Illuminate\Console\Application $artisan) use($schedule, $schedule_frequency){
-            $artisan->resolveCommands(Console\Commands\CartCleanup::class);
+        $this->app->booted(function() {
+            $schedule = $this->app->make(Schedule::class);
+            $schedule_frequency = config('cart.schedule_frequency', 'hourly');
             $schedule->command('cart:cleanup')->$schedule_frequency();
         });
     }

@@ -6,7 +6,7 @@ use Hassansin\DBCart\Models\CartLine;
 class CartTest extends Orchestra\Testbench\TestCase
 {
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->loadLaravelMigrations(['--database' => 'testbench']);

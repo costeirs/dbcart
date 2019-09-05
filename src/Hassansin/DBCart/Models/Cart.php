@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 const STATUS_ACTIVE = 'active';
 const STATUS_PENDING = 'pending';
@@ -82,9 +83,7 @@ class Cart extends Model
     }
 
     public function scopeUser($query, $user_id = null){
-        $user_id = $user_id ?: config('cart.user_id');
-        if ($user_id instanceof \Closure)
-            $user_id = $user_id();
+        $user_id = $user_id ?: Auth::id();
         return $query->where('user_id', $user_id);
     }
 
@@ -118,12 +117,9 @@ class Cart extends Model
 
         $request = app('request');
         $session_id = $request->session()->getId();
-        $user_id = config('cart.user_id');
+        $user_id = Auth::id();
         $app = Application::getInstance();
         $carts = $app->offsetGet("cart_instances");
-
-        if ($user_id instanceof \Closure)
-            $user_id = $user_id();
 
         //if user logged in
         if( $user_id ){

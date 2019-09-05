@@ -2,6 +2,7 @@
 
 namespace Hassansin\DBCart;
 
+use Hassansin\DBCart\Console\Commands\CartCleanup;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 
@@ -57,6 +58,10 @@ class CartServiceProvider extends ServiceProvider {
         $this->mergeConfigFrom(
             __DIR__.'/config/cart.php', 'cart'
         );
+
+        $this->commands([
+            CartCleanup::class
+        ]);
     }
 
     /*
@@ -66,7 +71,7 @@ class CartServiceProvider extends ServiceProvider {
         $this->app->booted(function() {
             $schedule = $this->app->make(Schedule::class);
             $schedule_frequency = config('cart.schedule_frequency', 'hourly');
-            $schedule->command('cart:cleanup')->$schedule_frequency();
+            $schedule->command(CartCleanup::class)->$schedule_frequency();
         });
     }
 
